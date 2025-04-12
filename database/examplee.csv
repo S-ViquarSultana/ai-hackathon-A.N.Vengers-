@@ -1,0 +1,91 @@
+Domain,difficulty_level,question,Option A,Option B,Option C,Option D,correct_answer,Badge
+Machine learning,Beginner,What is Machine Learning?,A subset of AI that learns from data,A type of hardware technology,A programming language,A type of database,A subset of AI that learns from data,Bronze
+Machine learning,Beginner,Which of the following is a type of supervised learning?,Clustering,Classification,Reinforcement Learning,Dimensionality Reduction,Classification,Bronze
+Machine learning,Beginner,What is the purpose of a training dataset in ML?,To train the model,To test the model,To deploy the model,To delete unwanted data,To train the model,Bronze
+Machine learning,Beginner,Which algorithm is used for classification?,Linear Regression,Decision Trees,K-Means,Apriori,Decision Trees,Bronze
+Machine learning,Beginner,What does overfitting mean in ML?,Model performs well on training but poorly on new data,Model performs well on all data,Model does not learn,Model learns too slowly,Model performs well on training but poorly on new data,Bronze
+Machine learning,Beginner,Which evaluation metric is commonly used for classification models?,Mean Squared Error,Accuracy,Silhouette Score,R-Squared,Accuracy,Bronze
+Machine learning,Beginner,Which library is commonly used for ML in Python?,NumPy,Matplotlib,Scikit-learn,Pandas,Scikit-learn,Bronze
+Machine learning,Beginner,What is the main goal of unsupervised learning?,To find patterns in data,To predict labels,To increase accuracy,To minimize errors,To find patterns in data,Bronze
+Machine learning,Beginner,Which ML model is best for predicting continuous values?,Decision Tree,Naïve Bayes,Linear Regression,K-Means,Linear Regression,Bronze
+Machine learning,Beginner,What is the role of a loss function in ML?,To measure prediction error,To increase accuracy,To store data,To preprocess data,To measure prediction error,Bronze
+Machine learning,Intermediate,Which technique is used to handle imbalanced datasets?,Random Sampling,Feature Engineering,SMOTE,Gradient Boosting,SMOTE,Silver
+Machine learning,Intermediate,What is the main advantage of using ensemble learning?,Reduces overfitting,Increases model complexity,Requires less data,Eliminates need for validation,Reduces overfitting,Silver
+Machine learning,Intermediate,Which activation function is commonly used in deep learning?,Sigmoid,ReLU,Linear,Softmax,ReLU,Silver
+Machine learning,Intermediate,What is the main purpose of regularization in ML?,Reduce model complexity,Increase training accuracy,Improve test accuracy,Reduce dataset size,Reduce model complexity,Silver
+Machine learning,Intermediate,Which method is used for dimensionality reduction?,Bagging,PCA,KNN,Gradient Descent,PCA,Silver
+Machine learning,Intermediate,What is the main function of a confusion matrix?,Summarize classification performance,Reduce computation time,Optimize model hyperparameters,Improve feature selection,Summarize classification performance,Silver
+Machine learning,Intermediate,Which algorithm is most suitable for time-series forecasting?,Random Forest,Logistic Regression,ARIMA,K-Means,ARIMA,Silver
+Machine learning,Intermediate,Which optimization algorithm is commonly used for neural networks?,Newton’s Method,Gradient Descent,Apriori,DBSCAN,Gradient Descent,Silver
+Machine learning,Intermediate,What does a high bias in a model indicate?,Underfitting,Overfitting,Good generalization,Model is optimal,Underfitting,Silver
+Machine learning,Intermediate,What is cross-validation used for?,Model evaluation,Data augmentation,Feature extraction,Data cleaning,Model evaluation,Silver
+Machine learning,Advanced,Which technique is used to prevent exploding gradients in deep learning?,Batch Normalization,Gradient Clipping,Dropout,Adam Optimizer,Gradient Clipping,Gold
+Machine learning,Advanced,Which loss function is commonly used for multi-class classification?,Mean Squared Error,Hinge Loss,Cross-Entropy Loss,Huber Loss,Cross-Entropy Loss,Gold
+Machine learning,Advanced,What is the main purpose of attention mechanisms in neural networks?,Improve interpretability,Focus on important input features,Reduce overfitting,Increase model speed,Focus on important input features,Gold
+Machine learning,Advanced,Which approach is used for hyperparameter tuning?,Grid Search,Backpropagation,K-Means,Autoencoders,Grid Search,Gold
+Machine learning,Advanced,What is the purpose of the Transformer model in deep learning?,Image classification,Sequence-to-sequence learning,Feature selection,Outlier detection,Sequence-to-sequence learning,Gold
+Machine learning,Advanced,Which method is used for uncertainty estimation in ML models?,Bayesian Inference,Gradient Descent,PCA,KNN,Bayesian Inference,Gold
+Machine learning,Advanced,What is the main advantage of using GANs?,Improved interpretability,Data generation,Reduced computation cost,Feature selection,Data generation,Gold
+Machine learning,Advanced,Which technique is used in reinforcement learning to balance exploration and exploitation?,Dropout,Epsilon-Greedy,Gradient Clipping,Bagging,Epsilon-Greedy,Gold
+Machine learning,Advanced,What does LSTM solve compared to traditional RNNs?,Vanishing gradient problem,Overfitting,Exploding gradient problem,Low training speed,Vanishing gradient problem,Gold
+Machine learning,Advanced,Which algorithm is used for anomaly detection in high-dimensional data?,DBSCAN,XGBoost,Isolation Forest,K-Means,Isolation Forest,Gold
+Web Development,Beginner,What does HTML stand for?,Hyper Transfer Markup Language,Hyper Text Markup Language,High Tech Markup Language,Hyperlink and Text Markup Language,Hyper Text Markup Language,Bronze
+Web Development,Beginner,Which language is used for styling web pages?,HTML,CSS,JavaScript,Python,CSS,Bronze
+Web Development,Beginner,Which tag is used to create a hyperlink in HTML?,<link>,<a>,<href>,<h1>,<a>,Bronze
+Web Development,Beginner,What is the purpose of JavaScript in web development?,Define page structure,Style web pages,Make web pages interactive,Store data permanently,Make web pages interactive,Bronze
+Web Development,Beginner,Which of the following is a CSS framework?,React,Node.js,Bootstrap,Django,Bootstrap,Bronze
+Web Development,Beginner,Which symbol is used for ID selectors in CSS?,.,#,!,&,#,Bronze
+Web Development,Beginner,Which HTML element is used to create a form?,<div>,<form>,<input>,<section>,<form>,Bronze
+Web Development,Beginner,What does the “alt” attribute in an <img> tag specify?,Image size,Alternative text,Image format,Background color,Alternative text,Bronze
+Web Development,Beginner,Which of the following is a backend programming language?,HTML,CSS,JavaScript,Python,Python,Bronze
+Web Development,Beginner,Which HTTP method is used to submit form data?,GET,POST,DELETE,PUT,POST,Bronze
+Web Development,Intermediate,Which HTML5 element is used for multimedia content like audio and video?,<div>,<media>,<embed>,<audio>,<audio>,Silver
+Web Development,Intermediate,"What is the purpose of the ""position: absolute;"" property in CSS?",Positions an element relative to its normal flow,Positions an element relative to the viewport,Positions an element relative to its nearest positioned ancestor,Makes an element float,Positions an element relative to its nearest positioned ancestor,Silver
+Web Development,Intermediate,Which JavaScript function is used to select an element by ID?,document.querySelector(),document.getElementById(),document.getElementsByClassName(),document.getElementsByTagName(),document.getElementById(),Silver
+Web Development,Intermediate,What is the main purpose of a CSS media query?,Change styles based on screen size,Add animations to a webpage,Improve website performance,Validate user input,Change styles based on screen size,Silver
+Web Development,Intermediate,Which of the following is a JavaScript framework?,Django,Flask,Vue.js,PHP,Vue.js,Silver
+Web Development,Intermediate,What does AJAX stand for?,Asynchronous JavaScript and XML,Automated JavaScript and XHTML,Advanced JSON and XML,Asynchronous JSON and XHTML,Asynchronous JavaScript and XML,Silver
+Web Development,Intermediate,"Which HTTP status code indicates a ""Not Found"" error?",200,301,404,500,404,Silver
+Web Development,Intermediate,What is the purpose of localStorage in JavaScript?,Store data temporarily,Store data permanently in the browser,Send data to the server,Delete cookies,Store data permanently in the browser,Silver
+Web Development,Intermediate,Which of the following is a backend framework?,React,Express.js,Angular,Tailwind CSS,Express.js,Silver
+Web Development,Intermediate,Which SQL command is used to retrieve data from a database?,INSERT,UPDATE,SELECT,DELETE,SELECT,Silver
+Web Development,Advanced,Which HTTP header is used to prevent cross-site scripting (XSS) attacks?,Content-Type,CORS,X-Frame-Options,Content-Security-Policy,Content-Security-Policy,Gold
+Web Development,Advanced,What is the primary benefit of using a CDN for web assets?,Increases server load,Slows down website performance,Improves content delivery speed,Reduces caching,Improves content delivery speed,Gold
+Web Development,Advanced,Which database type is best suited for handling large-scale, unstructured data?,SQL,NoSQL,Relational,Graph,Gold
+Web Development,Advanced,What is the main advantage of server-side rendering (SSR) over client-side rendering (CSR)?,Faster initial page load,Better animations,Less server load,No need for JavaScript,Faster initial page load,Gold
+Web Development,Advanced,Which of the following is a state management library for React?,Axios,Redux,Bootstrap,Express,Redux,Gold
+Web Development,Advanced,What is the purpose of the WebSocket protocol?,Enable persistent real-time communication,Improve SEO,Secure API endpoints,Increase website caching,Enable persistent real-time communication,Gold
+Web Development,Advanced,Which security vulnerability is mitigated using prepared statements in SQL?,Cross-Site Scripting (XSS),SQL Injection,CSRF,Clickjacking,SQL Injection,Gold
+Web Development,Advanced,"What does the ""useEffect"" hook do in React?",Handles component styling,Manages side effects in functional components,Defines component state,Creates reusable components,Manages side effects in functional components,Gold
+Web Development,Advanced,Which of the following is a key feature of Progressive Web Apps (PWAs)?,Requires installation,Needs internet access at all times,Works offline using service workers,Only runs on mobile devices,Works offline using service workers,Gold
+Web Development,Advanced,What is the purpose of Docker in web development?,Database management,Frontend development,Containerization and deployment,Handling API requests,Containerization and deployment,Gold
+Data Science,Beginner,What is the primary goal of Data Science?,Data storage,Data visualization,Extracting insights from data,Creating databases,Extracting insights from data,Bronze
+Data Science,Beginner,Which of the following is a popular programming language for Data Science?,C++,Java,Python,HTML,Python,Bronze
+Data Science,Beginner,Which library is commonly used for data manipulation in Python?,Matplotlib,Pandas,TensorFlow,Scikit-learn,Pandas,Bronze
+Data Science,Beginner,What is the full form of CSV?,Common Separated Values,Comma Separated Values,Centralized System Values,Computer System Variables,Comma Separated Values,Bronze
+Data Science,Beginner,Which technique is used to handle missing data?,Data Augmentation,Data Cleaning,Data Reduction,Feature Engineering,Data Cleaning,Bronze
+Data Science,Beginner,Which visualization library is used to create plots in Python?,NumPy,Pandas,Matplotlib,Seaborn,Matplotlib,Bronze
+Data Science,Beginner,What is the purpose of feature scaling?,Increase dataset size,Normalize data values,Remove outliers,Reduce computational cost,Normalize data values,Bronze
+Data Science,Beginner,Which of the following is a type of supervised learning?,Clustering,Regression,Dimensionality Reduction,Association Rules,Regression,Bronze
+Data Science,Beginner,Which metric is commonly used to evaluate classification models?,Mean Absolute Error,Confusion Matrix,R-Squared,Silhouette Score,Confusion Matrix,Bronze
+Data Science,Beginner,Which data type is best suited for categorical variables?,Integer,Float,String,Boolean,String,Bronze
+Data Science,Intermediate,Which algorithm is commonly used for dimensionality reduction?,K-Means,PCA,Decision Tree,KNN,PCA,Silver
+Data Science,Intermediate,What is the purpose of cross-validation?,Reduce training time,Improve model accuracy,Assess model performance on unseen data,Reduce dataset size,Assess model performance on unseen data,Silver
+Data Science,Intermediate,Which metric is commonly used for evaluating regression models?,F1-Score,Accuracy,R-Squared,Confusion Matrix,R-Squared,Silver
+Data Science,Intermediate,What is the role of a kernel in Support Vector Machines (SVM)?,Reduce model complexity,Transform data into higher dimensions,Normalize data,Handle missing values,Transform data into higher dimensions,Silver
+Data Science,Intermediate,Which type of clustering does K-Means belong to?,Hierarchical Clustering,Density-Based Clustering,Partition-Based Clustering,Graph-Based Clustering,Partition-Based Clustering,Silver
+Data Science,Intermediate,What is the main drawback of using a Decision Tree?,Difficult to interpret,Requires large datasets,Prone to overfitting,Slow training process,Prone to overfitting,Silver
+Data Science,Intermediate,Which Python library is primarily used for machine learning?,Matplotlib,TensorFlow,Scikit-learn,Seaborn,Scikit-learn,Silver
+Data Science,Intermediate,What is the purpose of one-hot encoding?,Convert categorical data into numerical format,Reduce dataset size,Handle missing values,Increase training speed,Convert categorical data into numerical format,Silver
+Data Science,Intermediate,Which optimization algorithm is commonly used in neural networks?,K-Means,Gradient Descent,PCA,Apriori,Gradient Descent,Silver
+Data Science,Intermediate,What is the purpose of feature selection?,Improve model performance,Remove noise from the dataset,Reduce computational complexity,All of the above,All of the above,Silver
+Data Science,Advanced,Which technique is used to handle imbalanced datasets?,Dropout,SMOTE,Bagging,Gradient Clipping,SMOTE,Gold
+Data Science,Advanced,What is the purpose of L1 regularization in machine learning?,Reduces overfitting by penalizing large coefficients,Eliminates outliers,Increases model complexity,Improves training speed,Reduces overfitting by penalizing large coefficients,Gold
+Data Science,Advanced,Which model is best suited for sequential data processing?,Decision Tree,SVM,CNN,LSTM,LSTM,Gold
+Data Science,Advanced,What is the primary advantage of using an ensemble learning technique?,Reduces training time,Increases bias,Improves model performance,Requires less data,Improves model performance,Gold
+Data Science,Advanced,Which method is commonly used for hyperparameter tuning?,PCA,Cross-Validation,Grid Search,One-Hot Encoding,Grid Search,Gold
+Data Science,Advanced,Which deep learning architecture is best suited for image classification?,RNN,Transformer,CNN,K-Means,CNN,Gold
+Data Science,Advanced,What is the main objective of Reinforcement Learning?,Classify data points,Optimize rewards over time,Reduce dimensionality,Improve clustering,Optimize rewards over time,Gold
+Data Science,Advanced,Which activation function helps mitigate the vanishing gradient problem?,Sigmoid,ReLU,Softmax,Tanh,ReLU,Gold
+Data Science,Advanced,What is the main advantage of using XGBoost over traditional decision trees?,Lower interpretability,Faster training and better performance,Less computational power required,Works only on small datasets,Faster training and better performance,Gold
+Data Science,Advanced,Which evaluation metric is most suitable for imbalanced classification problems?,Accuracy,Precision,Recall,F1-Score,F1-Score,Gold

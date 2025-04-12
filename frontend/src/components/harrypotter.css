@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&display=swap');
+
+.font-hp {
+  font-family: 'IM Fell English SC', serif;
+}
+
+.bg-maroon {
+  background-color: #4a1a1a;
+}
+
+.text-gold {
+  color: #f8d77b;
+}
+
+.bg-gold {
+  background-color: #f8d77b;
+}
+
+.text-maroon {
+  color: #4a1a1a;
+}
+
+.harry-bg {
+  background-color: #1b1b1b;
+}
