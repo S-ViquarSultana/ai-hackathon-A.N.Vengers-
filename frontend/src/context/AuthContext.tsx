@@ -1,118 +1,60 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../lib/supabaseClient';
-//  import { useToast } from '../components/ui/toast';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useUser } from '@clerk/clerk-react';
 
 interface User {
-  id: string;
+  _id: string;
+  username: string;
   email: string;
+  interests: string[];
+  skills: string[];
   name?: string;
-  [key: string]: any;
+  image?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, name: string) => Promise<void>;
-  signOut: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const { user, isLoaded } = useUser();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (data?.user) {
-        setUser({
-          id: data.user.id,
-          email: data.user.email!,
-          name: data.user.user_metadata?.username || '',
-        });
-      }
-      setIsLoading(false);
-    };
-    fetchUser();
-  }, []);
-
-  const signIn = async (email: string, password: string) => {
-   // const { showToast } = useToast(); // ✅ Safe: called only on function run
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+    if (isLoaded && user) {
+      setCurrentUser({
+        _id: user.id,
+        username: '', // Note: Clerk's useUser hook does not provide a username property
+        email: user.primaryEmailAddress?.emailAddress || '',
+        interests: [],
+        skills: [], // Note: Clerk's useUser hook does not provide an interests property
+        name: user.fullName || '',
+        image: user.imageUrl || '',
       });
-      if (error) throw error;
-
-      setUser({
-        id: data.user.id,
-        email: data.user.email!,
-        name: data.user.user_metadata?.username || '',
-      });
-
-      //showToast('Successfully signed in', 'success');
-    } catch (error) {
-      //showToast(error instanceof Error ? error.message : 'Sign in failed', 'error');
-      throw error;
+    } else if (isLoaded && !user) {
+      setCurrentUser(null);
     }
-  };
-
-  const signUp = async (email: string, password: string, name: string) => {
-    //const { showToast } = useToast(); // ✅ Safe here too
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { username: name },
-        },
-      });
-      if (error) throw error;
-
-      setUser({
-        id: data.user?.id || '',
-        email: data.user?.email || '',
-        name,
-      });
-
-      //showToast('Successfully signed up', 'success');
-    } catch (error) {
-      //showToast(error instanceof Error ? error.message : 'Sign up failed', 'error');
-      throw error;
-    }
-  };
-
-  const signOut = async () => {
-    //const { showToast } = useToast(); // ✅ Safe again
-    await supabase.auth.signOut();
-    setUser(null);
-    //showToast('Signed out successfully', 'success');
-  };
+  }, [isLoaded, user]);
 
   return (
     <AuthContext.Provider
       value={{
-        user,
-        isAuthenticated: !!user,
-        isLoading,
-        signIn,
-        signUp,
-        signOut,
+        user: currentUser,
+        isAuthenticated: !!currentUser,
+        isLoading: !isLoaded,
       }}
     >
       {children}
     </AuthContext.Provider>
   );
-}
-
+};
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

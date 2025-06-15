@@ -30,17 +30,3 @@ class QuestionSearch:
         distances, indices = self.neighbors.kneighbors(query_vector)
         return [self.questions[i] for i in indices[0]]
 
-def fetch_serpapi_results(query: str) -> dict:
-    params = {
-        "q": query,
-        "api_key": Config.SERPAPI_KEY,
-        "engine": "google",
-        "num": 10
-    }
-    try:
-        response = requests.get("https://serpapi.com/search", params=params)
-        response.raise_for_status()
-        return response.json()
-    except Exception as e:
-        print(f"Error fetching from SERP API: {str(e)}")
-        return {"organic_results": []} 

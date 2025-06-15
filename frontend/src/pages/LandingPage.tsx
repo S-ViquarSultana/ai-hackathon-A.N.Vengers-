@@ -40,7 +40,7 @@ const LandingPage = () => {
             AI-powered courses, personalized recommendations, and more, all in one place.
           </p>
           <a
-            href="/signin"
+            href="/skill-assessment"
             aria-label="Get Started"
             className="inline-block bg-white text-blue-600 px-8 py-3 rounded-full text-lg font-medium hover:bg-gray-200 transition"
           >

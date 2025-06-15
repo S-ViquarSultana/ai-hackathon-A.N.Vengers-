@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify, abort
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 import os
@@ -9,66 +8,151 @@ import json
 import requests
 import jwt
 from dotenv import load_dotenv
-from supabase import create_client, Client
+from mongoengine import connect, Document, StringField, DateTimeField, ReferenceField, ListField, FloatField
+from pymongo import MongoClient
+from api.user import user_bp
+from api.test import test_bp
+from app.utils.db import connect_db
+from app.services.auth import hybrid_auth_required
+from api.user import update_bp
 
-# Load env variables
-load_dotenv()
 
+# App setup
 app = Flask(__name__)
+load_dotenv()
+connect_db()  # MongoDB connection
 
-# App configs
+# Register Blueprints
+app.register_blueprint(user_bp)
+app.register_blueprint(test_bp)
+app.register_blueprint(update_bp)
+
+# Configs
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 
-# Enable CORS
-CORS(app, resources={
-    r"/api/*": {
-        "origins": os.getenv('CORS_ORIGINS', 'http://localhost:5173').split(','),
-        "methods": ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        "allow_headers": ['Content-Type', 'Authorization']
-    }
-})
+# CORS setup
+CORS(app)
 
-# Init extensions
-db = SQLAlchemy(app)
+
+# JWT
 jwt_manager = JWTManager(app)
 
-# Supabase client
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkenl0cnVyYm5ocHJ0ZHRtZWlsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3MDY4MzYsImV4cCI6MjA1ODI4MjgzNn0.xPS-3Jbi5x71_TcdGLgK0mm5fEnrX52xLWFv3LC6uiY"
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+INNGEST_EVENT_URL = "https://api.inngest.com/e"  # Inngest event endpoint
+INNGEST_APP_NAME = "test/score.submitted"        # Event name
 
-# Models
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
-    interests = db.Column(db.String(500))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+@app.route('/api/inngest', methods=['POST'])
+def send_to_inngest():
+    try:
+        content = request.json
+        event_name = content.get("name", INNGEST_APP_NAME)
+        data = content.get("data", {})
 
-class Recommendation(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    title = db.Column(db.String(200), nullable=False)
-    url = db.Column(db.String(500), nullable=False)
-    description = db.Column(db.Text)
-    tags = db.Column(db.String(500))
-    category = db.Column(db.String(50), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+        payload = {
+            "name": event_name,
+            "data": data,
+            "user": { "id": data.get("userId") }
+        }
 
-class AssessmentQuestion(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    question = db.Column(db.Text, nullable=False)
-    domain = db.Column(db.String(50), nullable=False)
-    difficulty = db.Column(db.String(20))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+        response = requests.post(INNGEST_EVENT_URL, json=payload)
 
-with app.app_context():
-    db.create_all()
+        if response.status_code == 202:
+            return jsonify({"success": True}), 200
+        else:
+            return jsonify({"success": False, "error": response.text}), 500
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+
+
+# Models (MongoEngine)
+class User(Document):
+    _id = StringField(primary_key=True)
+    username = StringField(required=True, unique=True)
+    email = StringField(required=True, unique=True)
+    password_hash = StringField(required=True)
+    interests = StringField()
+    created_at = DateTimeField(default=datetime.utcnow)
+
+class Recommendation(Document):
+    user = ReferenceField(User, required=True)
+    title = StringField(required=True)
+    url = StringField(required=True)
+    description = StringField()
+    tags = StringField()
+    category = StringField(required=True)
+    created_at = DateTimeField(default=datetime.utcnow)
+
+
+class Score(Document):
+    user = ReferenceField(User, required=True)
+    test_id = StringField(required=True)
+    score_value = FloatField(required=True)
+    submitted_at = DateTimeField(default=datetime.utcnow)
+
+class Question(Document):
+    domain = StringField(required=True)
+    difficulty_level = StringField(required=True)
+    question = StringField(required=True)
+    option_a = StringField(required=True)
+    option_b = StringField(required=True)
+    option_c = StringField(required=True)
+    option_d = StringField(required=True)
+    correct_answer = StringField(required=True)
+    badge = StringField()
+
+
+# CSV Loader Endpoint
+@app.route('/api/questions/upload', methods=['POST'])
+@jwt_required()
+def upload_questions():
+    file = request.files.get('file')
+    if not file:
+        return jsonify({'success': False, 'message': 'No file uploaded'}), 400
+
+    try:
+        csv_reader = csv.DictReader(file.read().decode('utf-8').splitlines())
+        for row in csv_reader:
+            Question(
+                domain=row['Domain'],
+                difficulty_level=row['difficulty_level'],
+                question=row['question'],
+                option_a=row['Option A'],
+                option_b=row['Option B'],
+                option_c=row['Option C'],
+                option_d=row['Option D'],
+                correct_answer=row['correct_answer'],
+                badge=row.get('Badge', '')
+            ).save()
+        return jsonify({'success': True, 'message': 'Questions uploaded successfully'}), 201
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+# Score Evaluation
+@app.route('/api/submit-answers', methods=['POST'])
+@jwt_required()
+def submit_answers():
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    answers = data.get('answers', {})  # Format: { question_id: selected_option }
+
+    score = 0
+    for qid, selected in answers.items():
+        question = Question.objects(id=qid).first()
+        if question and question.correct_answer.strip().lower() == selected.strip().lower():
+            score += 1
+
+    Score(
+        user=User.objects(id=user_id).first(),
+        test_id=str(datetime.utcnow().timestamp()),
+        score_value=score,
+        submitted_at=datetime.utcnow()
+    ).save()
+
+    return jsonify({'success': True, 'score': score}), 200
 
 # SerpAPI fetch helper
 def fetch_serpapi_results(query: str) -> dict:
@@ -87,38 +171,31 @@ def fetch_serpapi_results(query: str) -> dict:
         return {'organic_results': []}
 
 # Store recommendations
-def store_recommendations(user_id: int, results: dict, category: str) -> None:
-    for result in results.get('organic_results', [])[:6]:  # Limit to 6
-        recommendation = Recommendation(
-            user_id=user_id,
+def store_recommendations(user, results: dict, category: str):
+    for result in results.get('organic_results', [])[:6]:
+        Recommendation(
+            user=user,
             title=result.get('title', ''),
             url=result.get('link', ''),
             description=result.get('snippet', ''),
             tags=json.dumps(result.get('title', '').split()),
             category=category
-        )
-        db.session.add(recommendation)
-    try:
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        print(f"DB commit failed: {str(e)}")
+        ).save()
 
-# Get recommendations by user
-@app.route('/api/recommendations/<int:user_id>', methods=['GET'])
+@app.route('/api/recommendations/<string:user_id>', methods=['GET'])
 @jwt_required()
 def get_recommendations(user_id):
     current_user_id = get_jwt_identity()
     if current_user_id != user_id:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 403
-    
-    recommendations = Recommendation.query.filter_by(user_id=user_id).all()
-    result = {
-        'courses': [],
-        'internships': [],
-        'projects': []
-    }
-    
+
+    user = User.objects(id=user_id).first()
+    if not user:
+        return jsonify({'success': False, 'message': 'User not found'}), 404
+
+    recommendations = Recommendation.objects(user=user)
+    result = {'courses': [], 'internships': [], 'projects': []}
+
     for rec in recommendations:
         data = {
             'title': rec.title,
@@ -127,44 +204,28 @@ def get_recommendations(user_id):
             'tags': json.loads(rec.tags or "[]")
         }
         result[f"{rec.category}s"].append(data)
-    
+
     return jsonify({'success': True, 'data': result}), 200
 
-# Update interests and fetch fresh recommendations
-@app.route('/api/recommendations/<int:user_id>/interests', methods=['PUT'])
-@jwt_required()
-def update_interests(user_id):
-    current_user_id = get_jwt_identity()
-    if current_user_id != user_id:
-        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+client = MongoClient("mongodb://localhost:27017/")
+db = client['dashboard']
+users = db['users']
+
+@app.route('/api/update-interests', methods=['POST'])
+def update_interests():
+    data = request.json
+    user_id = data.get('userId')
+    interests = data.get('interests')
+
+    if not user_id or interests is None:
+        return "Missing userId or interests", 400
+
+    result = users.update_one({"_id": user_id}, {"$set": {"interests": interests}})
     
-    data = request.get_json()
-    interests = data.get('interests', [])
-
-    if not isinstance(interests, list):
-        return jsonify({'success': False, 'message': 'Interests must be a list'}), 400
-    
-    user = User.query.get(user_id)
-    if not user:
-        return jsonify({'success': False, 'message': 'User not found'}), 404
-    
-    try:
-        user.interests = json.dumps(interests)
-        db.session.commit()
-
-        # Clear old
-        Recommendation.query.filter_by(user_id=user_id).delete()
-        db.session.commit()
-
-        for interest in interests:
-            store_recommendations(user_id, fetch_serpapi_results(f"{interest} online course"), 'course')
-            store_recommendations(user_id, fetch_serpapi_results(f"{interest} internship"), 'internship')
-            store_recommendations(user_id, fetch_serpapi_results(f"{interest} project github"), 'project')
-
-        return jsonify({'success': True, 'message': 'Updated interests & fetched data'}), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'success': False, 'message': str(e)}), 400
+    if result.modified_count == 1:
+        return jsonify({"message": "Interests updated successfully"}), 200
+    else:
+        return jsonify({"message": "No changes made"}), 200
 
 # Search courses directly
 @app.route('/api/recommendations/search', methods=['GET'])
@@ -645,17 +706,13 @@ def search_internships():
         "internships": matching_internships
     })
 
- 
-
-
-# Search assessment questions
+ # Search assessment questions (v1 dummy)
 @app.route('/api/search/questions', methods=['GET'])
 def search_questions():
     query = request.args.get('q')
     if not query:
         return jsonify({'success': False, 'message': 'Query is missing'}), 400
 
-    # Sample dummy results for testing
     sample_data = [
         {
             "title": "Introduction to Python",
@@ -665,30 +722,16 @@ def search_questions():
             "image": "https://example.com/image.jpg"
         }
     ]
-
     return jsonify({"success": True, "data": sample_data})
 
-# JWT helper (if needed)
-def get_supabase_user():
-    auth_header = request.headers.get('Authorization')
-    if not auth_header or not auth_header.startswith("Bearer "):
-        abort(401, description="Missing or invalid Authorization header")
-    token = auth_header.split(" ")[1]
-    try:
-        decoded = jwt.decode(token, options={"verify_signature": False})
-        return decoded
-    except Exception:
-        abort(401, description="Invalid token")
 
-
-# Search assessment questions
+# Search assessment questions (v2 dummy)
 @app.route('/api/search/questions/v2', methods=['GET'])
 def search_questions_v2():
     query = request.args.get('q')
     if not query:
         return jsonify({'success': False, 'message': 'Query is missing'}), 400
 
-    # Sample for v2
     data = [
         {
             "title": "Advanced Machine Learning",
@@ -698,21 +741,33 @@ def search_questions_v2():
             "image": "https://example.com/ml.jpg"
         }
     ]
-
     return jsonify({"success": True, "data": data})
 
-# JWT helper (if needed)
-def get_supabase_user():
-    auth_header = request.headers.get('Authorization')
-    if not auth_header or not auth_header.startswith("Bearer "):
-        abort(401, description="Missing or invalid Authorization header")
-    token = auth_header.split(" ")[1]
-    try:
-        decoded = jwt.decode(token, options={"verify_signature": False})
-        return decoded
-    except Exception:
-        abort(401, description="Invalid token")
 
-# Run
+
+
+from mongoengine.connection import get_db
+from app.models.user import User
+
+try:
+    db = get_db()
+    print(f"[✓] Connected to MongoDB: {db.name}")
+except Exception as e:
+    print(f"[✗] MongoDB connection failed: {e}")
+# Only run once
+if not User.objects(email="viquarsultana999@gmail.com"):
+    test_user = User(
+        _id="123456",
+        name="Syeda Viquar Sultana",
+        email="viquarsultana999@gmail.com",
+        interests=["AI", "Java", "NextJs", "Flask"],
+        skills=["Python", "React", "FastApi"],
+        image_url="https://static.vecteezy.com/system/resources/previews/035/857/643/original/3d-simple-user-icon-isolated-render-profile-photo-symbol-ui-avatar-sign-person-or-people-gui-element-realistic-illustration-vector.jpg",
+        progress=[]
+    )
+    test_user.save()
+    print("[✓] Test user inserted!")
+
+# Run the Flask app
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

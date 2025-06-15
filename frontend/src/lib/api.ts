@@ -8,6 +8,7 @@ export interface User {
   username: string;
   email: string;
   interests: string[];
+  skills: string[];
 }
 
 export interface Recommendation {
@@ -50,7 +51,7 @@ export interface Course {
   image: string;
 }
 
-// Create API client instance
+// Create Axios client
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -58,7 +59,7 @@ const api: AxiosInstance = axios.create({
   },
 });
 
-// Request interceptor for adding auth token
+// Add token from localStorage if available
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -67,12 +68,10 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor for handling errors
+// Handle 401 unauthorized globally
 api.interceptors.response.use(
   (response) => response,
   (error: AxiosError<ErrorResponse>) => {
@@ -85,63 +84,35 @@ api.interceptors.response.use(
   }
 );
 
-import { supabase } from '../lib/supabaseClient'; // path based on your project
-
-api.interceptors.request.use(
-  async (config) => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
-    if (session?.access_token) {
-      config.headers.Authorization = `Bearer ${session.access_token}`;
-    }
-
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-
-// Recommendations API
+// ✅ Recommendations API
 export const recommendations = {
-  getRecommendations: async (userId: number): Promise<Recommendations> => {
-    const response = await api.get<ApiResponse<Recommendations>>(`/recommendations/${userId}`);
-    return response.data.data!;
+  updateInterests: async (userId: string, interests: string[]) => {
+    const res = await api.post('/update-interests', { userId, interests });
+    return res.data;
   },
 
-  updateInterests: async (userId: number, interests: string[]): Promise<void> => {
-    await api.put(`/recommendations/${userId}/interests`, { interests });
-  },
   searchCourses: async (query: string): Promise<{ courses: Course[]; success: boolean }> => {
-    const response = await fetch(`http://localhost:5000/api/recommendations/search?q=${encodeURIComponent(query)}`);
-    if (!response.ok) {
-      throw new Error('Failed to search courses');
-    }
-    const data = await response.json();
+    const res = await api.get(`/recommendations/search?q=${encodeURIComponent(query)}`);
     return {
-      courses: data.courses,
-      success: true
+      courses: res.data.courses,
+      success: true,
     };
   },
+
   searchExperiences: async (query: string): Promise<{ experiences: Recommendation[]; success: boolean }> => {
-    const response = await fetch(`http://localhost:5000/api/recommendations/search-experiences?q=${encodeURIComponent(query)}`);
-    if (!response.ok) {
-      throw new Error('Failed to search experiences');
-    }
-    const data = await response.json();
+    const res = await api.get(`/recommendations/search-experiences?q=${encodeURIComponent(query)}`);
     return {
-      experiences: data.experiences,
-      success: true
+      experiences: res.data.experiences,
+      success: true,
     };
   },
+
   searchInternships: async (query: string) => {
     try {
       console.log("Searching internships for:", query);
-      const res = await fetch(`/api/recommendations/search-internships?q=${encodeURIComponent(query)}`);
-      const data = await res.json();
-      console.log("Internship results:", data);
-      return data;
+      const res = await api.get(`/recommendations/search-internships?q=${encodeURIComponent(query)}`);
+      console.log("Internship results:", res.data);
+      return res.data;
     } catch (error) {
       console.error("Fetch failed", error);
       return { success: false, message: "Error fetching internships" };
@@ -149,45 +120,45 @@ export const recommendations = {
   }
 };
 
+// 🔍 Search Courses Utility
 export const searchCourses = async (query: string) => {
   try {
-    const response = await fetch(`http://localhost:5000/api/recommendations/search?q=${encodeURIComponent(query)}`);
-    if (!response.ok) throw new Error("API Error");
-    const data = await response.json();
-    return data;
+    const res = await api.get(`/recommendations/search?q=${encodeURIComponent(query)}`);
+    return res.data;
   } catch (err) {
     console.error("Error fetching courses:", err);
     throw err;
   }
 };
 
-
-// Search API
+// 🔍 General Search API
 export const search = {
   searchQuestions: async (query: string): Promise<Recommendation[]> => {
-    const response = await api.get<ApiResponse<Recommendation[]>>('/search/questions', {
+    const res = await api.get<ApiResponse<Recommendation[]>>('/search/questions', {
       params: { q: query },
     });
-    return response.data.data!;
+    return res.data.data!;
   },
 };
 
-// Assessment API
+// 📋 Assessment API
 export const assessment = {
-  getAssessmentQuestions: async (userId: string, domainId: string): Promise<ApiResponse<{ questions: AssessmentQuestion[] }>> => {
-    const response = await api.get<ApiResponse<{ questions: AssessmentQuestion[] }>>(`/assessment/questions`, {
-      params: { userId, domainId }
+  getAssessmentQuestions: async (
+    userId: string,
+    domainId: string
+  ): Promise<ApiResponse<{ questions: AssessmentQuestion[] }>> => {
+    const res = await api.get<ApiResponse<{ questions: AssessmentQuestion[] }>>('/assessment/questions', {
+      params: { userId, domainId },
     });
-    return response.data;
+    return res.data;
   },
+
   searchQuestions: async (query: string): Promise<ApiResponse<string[]>> => {
-    const response = await api.get<ApiResponse<string[]>>('/assessment/search', {
-      params: { q: query }
+    const res = await api.get<ApiResponse<string[]>>('/assessment/search', {
+      params: { q: query },
     });
-    return response.data;
+    return res.data;
   }
 };
 
 export default api;
-
-

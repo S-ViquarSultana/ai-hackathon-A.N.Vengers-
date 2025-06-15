@@ -58,11 +58,35 @@ export default function AssessmentQuestions() {
   const [searchResults, setSearchResults] = useState<string[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
+  const sendScoreToInngest = async (skillScores: Record<string, number>) => {
+    if (!user?._id || !selectedDomain) return;
+  
+    try {
+      await fetch("/api/inngest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: "test/score.submitted",
+          data: {
+            userId: user._id,
+            domain: selectedDomain.name,
+            skillScores, // { html: 80, js: 60 } etc.
+            submittedAt: new Date().toISOString()
+          }
+        })
+      });
+  
+      console.log("Score submitted to Inngest");
+    } catch (error) {
+      console.error("Failed to send score to Inngest", error);
+    }
+  };
+  
   const fetchQuestions = async (domainId: string) => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await assessment.getAssessmentQuestions(String(user?.id || ''), domainId);
+      const response = await assessment.getAssessmentQuestions(String(user?._id || ''), domainId);
       if (!response.success || !response.data?.questions || response.data.questions.length === 0) {
         setError('No assessment questions available for this domain.');
         showToast('No questions available for this domain', 'error');
@@ -127,7 +151,9 @@ export default function AssessmentQuestions() {
     });
 
     setSkillLevels(skillScores);
+    sendScoreToInngest(skillScores);
     setShowResults(true);
+    
   };
 
   const handleBackToDomains = () => {

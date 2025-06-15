@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Compass, Book, Brain, Star, Play, Plus } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth,  } from '../context/AuthContext';
 import { useToast } from '../components/ui/toast';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -12,10 +12,9 @@ const courseImages = {
 };
 
 export default function Dashboard() {
-  const { user, signOut } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
-
   const [progress, setProgress] = useState(30); // % dummy
   const [achievements, setAchievements] = useState([
     { title: 'HTML Hero', icon: '📄', unlocked: true },
@@ -29,7 +28,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchProgress = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/user/${user?.id}/progress`);
+        const res = await axios.get(`http://localhost:5000/api/user/${user?._id}/progress`);
         setProgress(res.data.progress); // Expecting a number
       } catch (err) {
         console.warn('Using fallback progress data.');
@@ -38,7 +37,7 @@ export default function Dashboard() {
 
     const fetchAchievements = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/user/${user?.id}/achievements`);
+        const res = await axios.get(`http://localhost:5000/api/user/${user?._id}/achievements`);
         setAchievements(res.data); // Array of { title, icon, unlocked }
       } catch (err) {
         console.warn('Using dummy achievements.');
@@ -49,15 +48,7 @@ export default function Dashboard() {
     fetchAchievements();
   }, [user]);
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      showToast('Signed out successfully', 'success');
-      navigate('/signin');
-    } catch {
-      showToast('Error signing out', 'error');
-    }
-  };
+  
 
   return (
     <div className="min-h-screen p-6 md:p-8 bg-gray-950 text-white">
@@ -65,7 +56,6 @@ export default function Dashboard() {
         <h1 className="text-4xl font-bold text-gradient bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
           Welcome, {user?.email?.split('@')[0] || 'Learner'}
         </h1>
-        <button onClick={handleSignOut} className="text-sm text-red-300 hover:underline">Sign Out</button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

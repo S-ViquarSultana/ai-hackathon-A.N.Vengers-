@@ -1,26 +1,38 @@
-import React, { useState } from 'react';
-import { User, Book, Trophy, Clock, Settings } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { recommendations } from '../lib/api';
 import { useToast } from '../context/ToastContext';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
+import { User, Book, Trophy, Clock, Settings } from 'lucide-react';
 import { Card } from '../components/ui/card';
+
 
 export default function Profile() {
   const { user: currentUser } = useAuth();
   const { showToast } = useToast();
 
-  const [name, setName] = useState(currentUser?.username || '');
-  const [email, setEmail] = useState(currentUser?.email || '');
-  const [interests, setInterests] = useState<string[]>(currentUser?.interests || []);
-  const [skills, setSkills] = useState<string[]>(['Python', 'React', 'FastAPI']); // dummy data
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [interests, setInterests] = useState<string[]>([]);
+  const [skills, setSkills] = useState<string[]>([]);
   const [newInterest, setNewInterest] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (currentUser) {
+      setName(currentUser.username || currentUser.name || '');
+      setEmail(currentUser.email || '');
+      setInterests(currentUser.interests || []);
+      setSkills(currentUser.skills || []);
+    }
+  }, [currentUser]);
+  
+
   const handleAddInterest = () => {
-    if (newInterest.trim() && !interests.includes(newInterest.trim())) {
-      setInterests([...interests, newInterest.trim()]);
+    const interest = newInterest.trim();
+    if (interest && !interests.includes(interest)) {
+      setInterests([...interests, interest]);
       setNewInterest('');
     }
   };
@@ -33,7 +45,7 @@ export default function Profile() {
     if (!currentUser) return;
     setIsLoading(true);
     try {
-      await recommendations.updateInterests(Number(currentUser.id), interests);
+      await recommendations.updateInterests(currentUser._id, interests);
       showToast('Interests updated successfully', 'success');
     } catch (error) {
       showToast(error instanceof Error ? error.message : 'Failed to update interests', 'error');
@@ -41,6 +53,7 @@ export default function Profile() {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div className="space-y-12 p-8 max-w-screen-xl mx-auto">
@@ -55,9 +68,7 @@ export default function Profile() {
         {/* Profile Card */}
         <Card className="rounded-3xl p-8 space-y-6 shadow-2xl glass-card h-full lg:col-span-1">
           <div className="flex flex-col items-center space-y-4">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 flex items-center justify-center shadow-lg">
-  <User className="w-12 h-12 text-white" />
-</div>
+          
 
             <div className="text-center space-y-1">
               <h2 className="text-2xl font-semibold text-content text-shadow">{name}</h2>
@@ -89,7 +100,7 @@ export default function Profile() {
               <h2 className="text-2xl font-bold text-shadow">Skills</h2>
             </div>
             <div className="flex flex-wrap gap-3">
-              {skills.map((skill) => (
+              {skills.map((skill: string) => (
                 <span key={skill} className="px-4 py-2 bg-green-100 text-green-800 rounded-full text-base font-medium">
                   {skill}
                 </span>

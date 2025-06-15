@@ -21,6 +21,12 @@ import CoursesPage from './pages/CoursesPage';
 import InternshipsPage from './pages/InternshipsPage';
 import ProjectsPage from './pages/ProjectsPage';
 import AssessmentResult from './pages/ResultPage';
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton
+} from "@clerk/clerk-react";
 
 function App() {
   const handleSearch = (query: string) => {
@@ -29,13 +35,27 @@ function App() {
   };
 
   return (
-      <ThemeProvider>
-        <AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
         <ToastProvider>
           <Router>
-          <Navbar />
+            <header style={{ display: "flex", justifyContent: "flex-end", padding: "1rem" }}>
+              <SignedOut>
+                <SignInButton mode="modal" >
+                <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition">
+                    Sign-In
+                </button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+            </header>
+  
+            <Navbar />
+  
             <Routes>
-              <Route path="/" element={<LandingPage/>} />
+              <Route path="/" element={<LandingPage />} />
               <Route path="/magic" element={<LandingPageMagic />} />
               <Route path="/signin" element={<SignIn />} />
               <Route path="/signup" element={<SignUp />} />
@@ -54,10 +74,9 @@ function App() {
               <Route path="/search" element={<SearchBar onSearch={handleSearch} />} />
             </Routes>
           </Router>
-          </ToastProvider>
-        </AuthProvider>
-      </ThemeProvider>
+        </ToastProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
-}
-
+}  
 export default App; 

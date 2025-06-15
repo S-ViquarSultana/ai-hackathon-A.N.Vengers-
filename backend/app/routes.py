@@ -1,9 +1,12 @@
+# app/routes.py
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.utils.supabase_auth import supabase_auth_required
-from app.utils.auth import register_user, authenticate_user, update_user_interests
+from app.services.auth import auth_required, create_token
 from app.utils.recommendations import get_user_recommendations, update_recommendations
-from app.utils.assessment import get_questions_by_domain, search_questions, get_all_domains
+from app.models.question import Question
+from app.utils.search import search_questions, get_all_domains, get_questions_by_domain
+from app.services.auth import hybrid_auth_required  
+
 
 # Create blueprints
 auth_bp = Blueprint('auth', __name__)
@@ -51,8 +54,7 @@ def get_recommendations(user_id):
     recommendations = get_user_recommendations(user_id)
     return jsonify({'success': True, 'data': recommendations}), 200
 
-@recommendations_bp.route('/<int:user_id>/interests', methods=['PUT'])
-@jwt_required()
+@recommendations_bp.route('/<int:user_id>/interests', methods=['POST'])
 def update_interests(user_id):
     current_user_id = get_jwt_identity()
     if current_user_id != user_id:
@@ -72,23 +74,40 @@ def update_interests(user_id):
     # Update recommendations
     recommendations = update_recommendations(user_id, interests)
     return jsonify({'success': True, 'data': recommendations}), 200
+def search_questions(query):
+    results = Question.objects(question__icontains=query)
+    return [
+        {
+            "id": str(q.id),
+            "question": q.question,
+            "domain": q.domain,
+            "difficulty": q.difficulty_level,
+            "options": {
+                "a": q.option_a,
+                "b": q.option_b,
+                "c": q.option_c,
+                "d": q.option_d
+            },
+            "badge": q.badge
+        } for q in results
+    ]
 
-# Search routes
-@search_bp.route('/questions', methods=['GET'])
-def search():
-    query = request.args.get('q', '')
-    if not query:
-        return jsonify({'success': False, 'message': 'Query parameter is required'}), 400
-    
-    questions = search_questions(query)
-    return jsonify({'success': True, 'data': questions}), 200
+def get_all_domains():
+    return Question.objects().distinct('domain')
 
-@search_bp.route('/domains', methods=['GET'])
-def get_domains():
-    domains = get_all_domains()
-    return jsonify({'success': True, 'data': domains}), 200
-
-@search_bp.route('/questions/<domain>', methods=['GET'])
-def get_domain_questions(domain):
-    questions = get_questions_by_domain(domain)
-    return jsonify({'success': True, 'data': questions}), 200 
+def get_questions_by_domain(domain):
+    results = Question.objects(domain=domain)
+    return [
+        {
+            "id": str(q.id),
+            "question": q.question,
+            "difficulty": q.difficulty_level,
+            "options": {
+                "a": q.option_a,
+                "b": q.option_b,
+                "c": q.option_c,
+                "d": q.option_d
+            },
+            "badge": q.badge
+        } for q in results
+    ]
