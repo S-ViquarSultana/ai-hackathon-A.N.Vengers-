@@ -165,7 +165,7 @@ const LandingPage = () => {
             <a href="#" className="hover:text-gray-300" aria-label="Contact">Contact</a>
 {/* Floating Chatbot Button */}
 <a
-  href="https://caring-reflective-reindeer.glitch.me/" // <-- replace with your deployed chatbot URL
+  href="https://cdn.botpress.cloud/webchat/v3.0/shareable.html?configUrl=https://files.bpcontent.cloud/2025/06/15/07/20250615071146-3XPMK63J.json" // <-- replace with your deployed chatbot URL
   target="_blank"
   rel="noopener noreferrer"
   className="fixed bottom-6 right-6 z-50 group"
