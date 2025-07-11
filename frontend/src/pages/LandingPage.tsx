@@ -39,13 +39,23 @@ const LandingPage = () => {
           <p className="text-xl mb-6 drop-shadow-sm">
             AI-powered, courses, personalized recommendations, and more, all in one place.
           </p>
-          <a
-            href="/skill-assessment"
-            aria-label="Get Started"
-            className="inline-block bg-white text-blue-600 px-8 py-3 rounded-full text-lg font-medium hover:bg-gray-200 transition"
-          >
-            Get Started
-          </a>
+          <div className="flex justify-center gap-4">
+            <a
+              href="/skill-assessment"
+              aria-label="Get Started"
+              className="inline-block bg-white text-blue-600 px-8 py-3 rounded-full text-lg font-medium hover:bg-gray-200 transition"
+            >
+              Get Started
+            </a>
+            <a
+              href="/dashboard"
+              aria-label="Go to Dashboard"
+              className="inline-block bg-white text-green-600 px-8 py-3 rounded-full text-lg font-medium hover:bg-gray-200 transition"
+            >
+              Go to Dashboard
+            </a>
+          </div>
+
         </motion.div>
       </section>
 
