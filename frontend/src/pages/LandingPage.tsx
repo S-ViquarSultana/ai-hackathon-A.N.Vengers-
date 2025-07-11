@@ -37,7 +37,7 @@ const LandingPage = () => {
         >
           <h1 className="text-5xl font-bold mb-4 drop-shadow-lg">Welcome to Your Learning Companion</h1>
           <p className="text-xl mb-6 drop-shadow-sm">
-            AI-powered courses, personalized recommendations, and more, all in one place.
+            AI-powered, courses, personalized recommendations, and more, all in one place.
           </p>
           <a
             href="/skill-assessment"
