@@ -24,7 +24,7 @@ const LandingPageMagic = () => {
             Enchanted courses, wizard-level recommendations, and more—your Hogwarts of Knowledge awaits.
           </p>
           <a
-            href="/signin"
+            href="/dashboard"
             className="inline-block bg-gold text-maroon px-8 py-3 rounded-full text-lg font-hp font-medium hover:bg-yellow-300 transition"
           >
             Begin Your Quest

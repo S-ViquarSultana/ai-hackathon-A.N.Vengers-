@@ -45,12 +45,12 @@ export default function Chatbot() {
     setIsLoading(true);
 
     try {
-      // TODO: Implement actual AI chat API call
+      // Implement botpress chat API call
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: `I understand you're asking about "${input}". Here's a helpful response...`,
+        text: `Here's a helpful response...`,
         sender: 'bot',
         timestamp: new Date()
       };
